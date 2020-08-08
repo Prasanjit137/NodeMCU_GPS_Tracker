@@ -1,0 +1,39 @@
+body, html {
+  height: 100%;
+}
+.bg {
+  /* The image used */
+  background-image: url('https://res.cloudinary.com/arre/image/upload/c_scale,w_760,h_425,e_sharpen:100,f_auto,q_auto/v1530103366/Reuters-Survey-on-Women_uobuwm.jpg');
+  filter: blur(1px);
+  -webkit-filter: blur(1px);
+  /* Full height */
+  height: 100%;
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.bg-others {
+  background-color: rgb(0,0,0); 
+  background-color: rgba(0,0,0, 0.4); 
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  border: 3px solid #f1f1f1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 80%;
+  padding: 30px;
+  transform: translate(-50%, -50%);
+}
+.hr1{
+   color: white; 
+}
+#map-canvas{
+    width:700px;
+    height:400px;
+    
+}

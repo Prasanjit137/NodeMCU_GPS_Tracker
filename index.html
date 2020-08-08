@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Realtime GPS Tracker</title>
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.19.0.min.js"></script>
+    <link rel="stylesheet" href="map.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </head>
+  <body>
+      <div class="bg"></div>
+     <div class="bg-others"> 
+    <div class="container">
+      <h1 >Realtime GPS Tracker with NodeMCU</h1>
+        <center><hr style="height:2px; border:none; color:#ffffff; background-color:#ffffff; width:66%; margin: 0 auto 0 auto;"></center>
+	<br>
+	<center><div id="map-canvas"></div></center>  
+	<br>
+        <center><button class="btn btn-success col-sm-3" id="action">Start Tracking</button></center><br>
+    </div>
+          </div>
+
+    <script>
+    window.lat = 26.731670;
+    window.lng = 88.417297;
+
+    var map;
+    var mark;
+    var lineCoords = [];
+      
+    var initialize = function() {
+      map  = new google.maps.Map(document.getElementById('map-canvas'), {center:{lat:lat,lng:lng},zoom:12});
+      mark = new google.maps.Marker({position:{lat:lat, lng:lng}, map:map});
+    };
+
+    window.initialize = initialize;
+
+    var redraw = function(payload) {
+    	//payload.message.print()
+      if(payload.message.lat){
+      lat = payload.message.lat;
+      lng = payload.message.lng;
+
+      map.setCenter({lat:lat, lng:lng, alt:0});
+      mark.setPosition({lat:lat, lng:lng, alt:0});
+      
+      lineCoords.push(new google.maps.LatLng(lat, lng));
+
+      var lineCoordinatesPath = new google.maps.Polyline({
+        path: lineCoords,
+        geodesic: true,
+        strokeColor: '#2E10FF'
+      });
+      
+      lineCoordinatesPath.setMap(map);}
+    };
+
+    var pnChannel = "nodemcu-tracker";
+
+    var pubnub = new PubNub({
+      publishKey:   'pub-c-6a40b016-c38d-4986-9b15-2ea8242de6c1',
+      subscribeKey: 'sub-c-0ae473f6-4818-11ea-814d-0ecb550e9de2'
+    });
+        
+    document.querySelector('#action').addEventListener('click', function(){
+        var text = document.getElementById("action").textContent;
+        if(text == "Start Tracking"){
+            pubnub.subscribe({channels: [pnChannel]});
+            pubnub.addListener({message:redraw});
+            document.getElementById("action").classList.add('btn-danger');
+            document.getElementById("action").classList.remove('btn-success');
+            document.getElementById("action").textContent = 'Stop Tracking';
+        }
+        else{
+            pubnub.unsubscribe( {channels: [pnChannel] });
+            document.getElementById("action").classList.remove('btn-danger');
+            document.getElementById("action").classList.add('btn-success');
+            document.getElementById("action").textContent = 'Start Tracking';
+        }
+        });
+  //  function newPoint(time) {
+  //    var radius = 0.01;
+  //    var x = Math.random() * radius;
+  //    var y = Math.random() * radius;
+  //    return {lat:window.lat + y, lng:window.lng + x};
+  //      }
+  //    setInterval(function() {
+  //    pubnub.publish({channel:pnChannel, message:newPoint()});
+  //    }, 500);
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyDmWpLriGczZia8UQYSdlshHjSFVf37xwA&callback=initialize"></script>
+  </body>
+</html>
